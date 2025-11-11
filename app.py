@@ -55,4 +55,49 @@ def train_model(X_train, y_train, model_type='RandomForest'):
         model = RandomForestClassifier(random_state=42)
     elif model_type == 'LogisticRegression':
         model = LogisticRegression()
-    # Note: Vous devez ajouter le code pour entraîner le modèle ici
+    else:
+        model = SVC(probability=True)  # Ajout de SVC comme option de modèle
+
+    model.fit(X_train, y_train)  # Entraînement du modèle
+    return model
+
+# Interface utilisateur
+def main():
+    st.title("Application de Prédiction de Maladies Cardiaques")
+
+    # Chargement des données
+    data = load_data()
+    st.write("Données chargées :")
+    st.write(data.head())
+
+    # Prétraitement des données
+    processed_data = preprocess_data(data)
+    st.write("Données prétraitées :")
+    st.write(processed_data.head())
+
+    # Séparation des caractéristiques et de la cible
+    X = processed_data.drop('target', axis=1)  # Remplacez 'target' par le nom de votre colonne de cible
+    y = processed_data['target']  # Remplacez 'target' par le nom de votre colonne de cible
+
+    # Séparation des ensembles d'entraînement et de test
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # Entraînement du modèle
+    model = train_model(X_train, y_train)
+
+    # Prédictions
+    predictions = model.predict(X_test)
+    st.write("Prédictions :")
+    st.write(predictions)
+
+    # Évaluation du modèle
+    st.write("Matrice de confusion :")
+    cm = confusion_matrix(y_test, predictions)
+    st.write(cm)
+
+    st.write("Rapport de classification :")
+    report = classification_report(y_test, predictions)
+    st.text(report)
+
+if __name__ == "__main__":
+    main()
