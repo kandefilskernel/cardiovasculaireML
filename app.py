@@ -18,6 +18,7 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 
+
 # Chargement des données
 @st.cache
 def load_data():
