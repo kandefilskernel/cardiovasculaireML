@@ -1,3 +1,6 @@
+pip show matplotlib
+pip install matplotlib
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,7 +16,7 @@ from sklearn.svm import SVC
 # Chargement des données
 @st.cache
 def load_data():
-    data = pd.read_csv('heart.csv')
+    data = pd.read_csv('heart.csv')  # Assurez-vous que ce fichier est présent
     return data
 
 # Prétraitement des données
@@ -21,18 +24,15 @@ def preprocess_data(data):
     # Gestion des données manquantes
     if data.isnull().sum().any():
         st.warning("Des données manquantes ont été détectées.")
-        # Affichage des données manquantes
         st.write(data.isnull().sum())
 
         # Imputation des données manquantes
         for col in data.columns:
             if data[col].isnull().sum() > 0:
                 if data[col].dtype == 'object':
-                    # Imputation par le mode pour les colonnes catégorielles
                     mode = data[col].mode()[0]
                     data[col].fillna(mode, inplace=True)
                 else:
-                    # Imputation par la médiane pour les colonnes numériques
                     median = data[col].median()
                     data[col].fillna(median, inplace=True)
 
