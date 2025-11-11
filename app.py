@@ -1,4 +1,4 @@
-pip show matplotlib
+
 pip install matplotlib
 
 import pandas as pd
