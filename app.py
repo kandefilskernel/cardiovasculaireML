@@ -1,6 +1,7 @@
-
+# Installation des bibliothèques nécessaires
 !pip install matplotlib
 !pip show matplotlib
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,13 +9,13 @@ import seaborn as sns
 import streamlit as st
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import confusion_matrix, classification_report, roc_curve, auc
+from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 
 # Chargement des données
-@st.cache
+@st.cache_data  # Utilisez @st.cache_data pour les versions récentes de Streamlit
 def load_data():
     data = pd.read_csv('heart.csv')  # Assurez-vous que ce fichier est présent
     return data
@@ -40,12 +41,15 @@ def preprocess_data(data):
     label_encoder = LabelEncoder()
     categorical_cols = ['Sex', 'ChestPainType', 'RestingECG', 'ExerciseAngina']
     for col in categorical_cols:
-        data[col] = label_encoder.fit_transform(data[col])
+        if col in data.columns:
+            data[col] = label_encoder.fit_transform(data[col])
 
     # Standardisation des variables numériques
     numerical_cols = ['Age', 'RestingBP', 'Cholesterol', 'MaxHR']
-    scaler = StandardScaler()
-    data[numerical_cols] = scaler.fit_transform(data[numerical_cols])
+    for col in numerical_cols:
+        if col in data.columns:
+            scaler = StandardScaler()
+            data[col] = scaler.fit_transform(data[[col]])
 
     return data
 
@@ -75,9 +79,14 @@ def main():
     st.write("Données prétraitées :")
     st.write(processed_data.head())
 
+    # Vérification de la colonne cible
+    if 'target' not in processed_data.columns:
+        st.error("La colonne 'target' n'est pas présente dans les données.")
+        return
+
     # Séparation des caractéristiques et de la cible
-    X = processed_data.drop('target', axis=1)  # Remplacez 'target' par le nom de votre colonne de cible
-    y = processed_data['target']  # Remplacez 'target' par le nom de votre colonne de cible
+    X = processed_data.drop('target', axis=1)
+    y = processed_data['target']
 
     # Séparation des ensembles d'entraînement et de test
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
