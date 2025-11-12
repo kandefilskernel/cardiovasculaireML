@@ -11,7 +11,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 
 # Chargement des données
-@st.cache_data  # Utilisez @st.cache_data pour les versions récentes de Streamlit
+@st.cache_data  
 def load_data():
     data = pd.read_csv('heart.csv')  # Assurez-vous que ce fichier est présent
     return data
@@ -41,11 +41,15 @@ def preprocess_data(data):
             data[col] = label_encoder.fit_transform(data[col])
 
     # Standardisation des variables numériques
-    numerical_cols = ['Age', 'RestingBP', 'Cholesterol', 'MaxHR']
+    numerical_cols = ['Age', 'RestingBP', 'Cholesterol', 'MaxHR', 'Oldpeak']  # Ajout de 'Oldpeak'
     for col in numerical_cols:
         if col in data.columns:
-            scaler = StandardScaler()
-            data[col] = scaler.fit_transform(data[[col]])
+            # Vérification si la colonne est bien numérique
+            if data[col].dtype != 'object':
+                scaler = StandardScaler()
+                data[col] = scaler.fit_transform(data[[col]])
+            else:
+                st.warning(f"La colonne {col} contient des valeurs non numériques et ne peut pas être normalisée.")
 
     return data
 
@@ -76,13 +80,13 @@ def main():
     st.write(processed_data.head())
 
     # Vérification de la colonne cible
-    if 'target' not in processed_data.columns:
-        st.error("La colonne 'target' n'est pas présente dans les données.")
+    if 'HeartDisease' not in processed_data.columns:
+        st.error("La colonne 'HeartDisease' n'est pas présente dans les données.")
         return
 
     # Séparation des caractéristiques et de la cible
-    X = processed_data.drop('target', axis=1)
-    y = processed_data['target']
+    X = processed_data.drop('HeartDisease', axis=1)
+    y = processed_data['HeartDisease']
 
     # Séparation des ensembles d'entraînement et de test
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
